@@ -72,16 +72,5 @@ if [ "$cygwin" = "false" ] && [ "$darwin" = "false" ] && [ "$nonstop" = "false" 
     fi
 fi
 
-# For Darwin, add options to specify how the application appears in the dock
-if $darwin; then
-    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
-fi
-
-# For Cygwin or MSYS, switch paths to Windows format before running java
-if [ "$cygwin" = "true" ] || [ "$msys" = "true" ] ; then
-    APP_HOME=`(cd "$APP_HOME" && pwd -P)`
-    APP_HOME=`echo "$APP_HOME" | sed 's|/cygdrive/\(..\)|\1:|g'`
-    CLASSPATH=`echo "$CLASSPATH" | sed 's|/cygdrive/\(..\)|\1:|g'`
-fi
-
-exec "$JAVACMD" $GRADLE_OPTS -Dorg.gradle.appname=$APP_BASE_NAME -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+# Collect all arguments for the java command
+exec "$JAVACMD" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
