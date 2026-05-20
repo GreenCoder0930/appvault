@@ -35,8 +35,9 @@ while [ -h "$PRG" ] ; do
         PRG=`dirname "$PRG"`"/$link"
     fi
 done
-SAVED="$(cd "$(dirname \"$PRG\")" >/dev/null 2>&1 && pwd)"
-cd "$SAVED" >/dev/null 2>&1 || exit
+SAVED="`cd "$(dirname "$PRG")" >/dev/null 2>&1 && pwd`"
+APP_HOME="`cd "$(dirname "$SAVED")" >/dev/null 2>&1 && pwd`"
+cd "$APP_HOME" >/dev/null 2>&1 || exit
 
 # Determine the Java command to use in order to perform the actual
 # submission, i.e., determine the command that will start the JVM.
@@ -56,14 +57,11 @@ else
     which java >/dev/null 2>&1 || { echo "Error: JAVA_HOME is not set and no 'java' command could be found in your PATH." >&2; exit 1; }
 fi
 
-# Use the maximum available, or set a value
-# MAX_FD="maximum"
-
 # Increase the maximum file descriptors if we can.
 if [ "$cygwin" = "false" ] && [ "$darwin" = "false" ] && [ "$nonstop" = "false" ] ; then
     MAX_FD_LIMIT=`ulimit -H -n`
     if [ $? -eq 0 ] ; then
-        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
+        if [ "$MAX_FD" = "maximum" ] || [ "$MAX_FD" = "max" ] ; then
             MAX_FD="$MAX_FD_LIMIT"
         fi
         ulimit -n $MAX_FD
@@ -81,15 +79,15 @@ if $darwin; then
 fi
 
 # For Cygwin or MSYS, switch paths to Windows format before running java
-if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
+if [ "$cygwin" = "true" ] || [ "$msys" = "true" ] ; then
     APP_HOME=`(cd "$APP_HOME" && pwd -P)`
-    APP_HOME=`echo "$APP_HOME" | sed 's|/cygdrive/\(.\)|\1:|g'`
-    CLASSPATH=`echo "$CLASSPATH" | sed 's|/cygdrive/\(.\)|\1:|g'`
+    APP_HOME=`echo "$APP_HOME" | sed 's|/cygdrive/\(..\)|\1:|g'`
+    CLASSPATH=`echo "$CLASSPATH" | sed 's|/cygdrive/\(..\)|\1:|g'`
     # Now convert the arguments - kludge to limit ourselves to /bin/sh
     for arg do
         if expr "$arg" : '[^/].*' > /dev/null ; then
             arg=`(cd "$arg" && pwd -P)`
-            arg=`echo "$arg" | sed 's|/cygdrive/\(.\)|\1:|g'`
+            arg=`echo "$arg" | sed 's|/cygdrive/\(..\)|\1:|g'`
         fi
         APP_ARGS="$APP_ARGS \"$arg\""
     done
@@ -107,7 +105,8 @@ set -- \
 # Stop when "xargs" is not available.
 if ! command -v xargs >/dev/null 2>&1
 then
-    die "xargs not available"
+    echo "Error: xargs is not available" >&2
+    exit 1
 fi
 
 # Use "xargs" to parse quoted args.
@@ -119,6 +118,8 @@ if ! echo "$*" | xargs -0 sh -c 'for arg; do
     esac
 done' sh
 then
-    die "Unexpected failure parsing options"
+    echo "Error: Unexpected failure parsing options" >&2
+    exit 1
 fi
-exec "$JAVACMD" "${JVM_OPTS[@]}" -Dorg.gradle.appname=$APP_BASE_NAME -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+
+exec "$JAVACMD" "$@"
